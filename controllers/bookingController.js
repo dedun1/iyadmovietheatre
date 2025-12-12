@@ -64,12 +64,6 @@ function insertBooking(showtime_id, user_id, guest, seats, total, res) {
         (err, result) => {
             if (err) return res.status(500).json({ message: "Booking insert error" });
 
-            // Remove temporary seat holds
-            db.query(
-                "DELETE FROM seat_reservations WHERE showtime_id = ? AND seat_number IN (?)",
-                [showtime_id, seats]
-            );
-
             res.json({
                 message: user_id ? "Booking created" : "Guest booking created",
                 booking_id: result.insertId

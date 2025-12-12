@@ -145,22 +145,11 @@ exports.getSeatMap = (req, res) => {
                 let booked = [];
                 bookedRows.forEach(r => booked.push(...JSON.parse(r.seats)));
 
-                db.query(
-                    "SELECT seat_number FROM seat_reservations WHERE showtime_id = ? AND expires_at > DATETIME('now')",
-                    [id],
-                    (err, reservedRows) => {
-                        if (err) return res.status(500).json({ message: "Database error" });
-
-                        let reserved = reservedRows.map(r => r.seat_number);
-
-                        res.json({
-                            rows: seat_rows,
-                            columns: seat_columns,
-                            booked,
-                            reserved
-                        });
-                    }
-                );
+                res.json({
+                    rows: seat_rows,
+                    columns: seat_columns,
+                    booked
+                });
             }
         );
     });

@@ -16,9 +16,8 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-/**
- * Small helper so we can still call db.query(sql, params, callback)
- */
+// Small helper so we can still call db.query(sql, params, callback)
+ 
 db.query = (sql, params, callback) => {
   if (typeof params === "function") {
     callback = params;
@@ -44,10 +43,10 @@ db.query = (sql, params, callback) => {
   }
 };
 
-/**
- * Create tables if they do not exist.
- * This runs once when the app starts.
- */
+
+// Create tables if they do not exist.
+// This runs once when the app starts.
+ 
 const initSchema = () => {
   db.serialize(() => {
     // USERS
@@ -125,18 +124,6 @@ const initSchema = () => {
       )
     `);
 
-    // TEMPORARY SEAT RESERVATIONS
-    db.run(`
-      CREATE TABLE IF NOT EXISTS seat_reservations (
-        reservation_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        showtime_id    INTEGER NOT NULL,
-        seat_number    TEXT NOT NULL,
-        session_id     TEXT NOT NULL,
-        expires_at     DATETIME NOT NULL,
-        UNIQUE (showtime_id, seat_number),
-        FOREIGN KEY (showtime_id) REFERENCES showtimes(showtime_id)
-      )
-    `);
     // AUTH LOGS
 db.run(`
   CREATE TABLE IF NOT EXISTS auth_logs (

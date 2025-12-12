@@ -14,7 +14,4 @@ router.get("/bookings", requireAdmin, adminController.getAdminBookings);
 // Update booking status
 router.put("/bookings/:id/status", requireAdmin, adminController.updateBookingStatus);
 
-// Cleanup expired seat reservations
-router.post("/cleanup-expired", requireAdmin, adminController.cleanupExpiredReservations);
-
 module.exports = router;

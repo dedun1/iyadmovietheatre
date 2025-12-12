@@ -104,16 +104,3 @@ exports.updateBookingStatus = (req, res) => {
     });
 };
 
-// CLEANUP EXPIRED RESERVATIONS
-exports.cleanupExpiredReservations = (req, res) => {
-    const sql = "DELETE FROM seat_reservations WHERE expires_at < DATETIME('now')";
-
-    db.query(sql, (err, result) => {
-        if (err) return res.status(500).json({ message: "Database error" });
-
-        res.json({
-            message: "Expired reservations removed",
-            deleted: result.affectedRows
-        });
-    });
-};
