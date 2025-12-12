@@ -3,7 +3,7 @@
 
 const db = require("../config/db");
 
-//INTERNAL: Validate seats belong to screen layout
+// INTERNAL: Validate seats belong to screen layout
 function validateSeats(seats, seat_rows, seat_columns) {
     for (let seat of seats) {
         const rowLetter = seat[0].toUpperCase();
@@ -21,7 +21,7 @@ function validateSeats(seats, seat_rows, seat_columns) {
     return null;
 }
 
-//INTERNAL: Check if seats already booked
+// INTERNAL: Check if seats already booked
 function checkSeatConflicts(showtime_id, seats, callback) {
     const sql = `
         SELECT seats FROM bookings
@@ -42,7 +42,7 @@ function checkSeatConflicts(showtime_id, seats, callback) {
     });
 }
 
-//INTERNAL: Insert booking in DB
+// INTERNAL: Insert booking in DB
 function insertBooking(showtime_id, user_id, guest, seats, total, res) {
     const sql = `
         INSERT INTO bookings
@@ -78,7 +78,7 @@ function insertBooking(showtime_id, user_id, guest, seats, total, res) {
     );
 }
 
-//CREATE BOOKING — GUEST OR USER
+// CREATE BOOKING — GUEST OR USER
 exports.createBooking = (req, res) => {
     const { showtime_id, seats, guest_name, guest_email, guest_phone } = req.body;
     const user_id = req.user ? req.user.user_id : null;

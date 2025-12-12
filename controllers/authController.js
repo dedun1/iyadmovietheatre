@@ -3,13 +3,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
-const { validationResult } = require("express-validator");
 
 const JWT_SECRET = "iyadkey";
 
-/**
- * Save authentication logs to SQLite database
- */
+// Save authentication logs to SQLite database
 function logAuthEvent(username, success, ip) {
     const sql = `
         INSERT INTO auth_logs (username, success, ip_address)
@@ -23,16 +20,27 @@ function logAuthEvent(username, success, ip) {
     });
 }
 
-/**
- * REGISTER USER
- */
+// REGISTER USER
 exports.register = (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json(errors.array());
+    let { username, email, password } = req.body;
+
+    // Manual validation (no external packages)
+    username = (username || "").trim().toLowerCase();
+    email = (email || "").trim().toLowerCase();
+    password = (password || "").trim();
+
+    if (!username) {
+        return res.status(400).json({ message: "Username is required" });
     }
 
-    const { username, email, password } = req.body;
+    if (!email || !email.includes("@")) {
+        return res.status(400).json({ message: "Valid email is required" });
+    }
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
     const passwordHash = bcrypt.hashSync(password, 10);
 
     const sql = `
@@ -52,11 +60,19 @@ exports.register = (req, res) => {
     });
 };
 
-/**
- * LOGIN USER
- */
+// LOGIN USER
+
 exports.login = (req, res) => {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
+
+    // Manual validation
+    username = (username || "").trim().toLowerCase();
+    password = (password || "").trim();
+
+    if (!username || !password) {
+        logAuthEvent(username, false, req.ip);
+        return res.status(400).json({ message: "Username and password are required" });
+    }
 
     const sql = "SELECT * FROM users WHERE username = ? LIMIT 1";
 
@@ -97,9 +113,8 @@ exports.login = (req, res) => {
     });
 };
 
-/**
- * LOGOUT USER
- */
+// LOGOUT USER
+
 exports.logout = (req, res) => {
     res.clearCookie("jwt");
     res.json({ message: "Logged out" });
