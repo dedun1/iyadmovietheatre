@@ -55,9 +55,9 @@ function insertBooking(showtime_id, user_id, guest, seats, total, res) {
         [
             showtime_id,
             user_id,
-            guest?.name || null,
-            guest?.email || null,
-            guest?.phone || null,
+            guest ? guest.name : null,
+            guest ? guest.email : null,
+            guest ? guest.phone : null,
             JSON.stringify(seats),
             total
         ],
@@ -81,13 +81,13 @@ exports.createBooking = (req, res) => {
         return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Guest booking must include fields
+    // Guest booking validation
     if (!user_id && (!guest_name || !guest_email || !guest_phone)) {
         return res.status(400).json({ message: "Guest must provide name, email, phone" });
     }
 
     const sql = `
-        SELECT s.*, sc.seat_rows, sc.seat_columns, sc.base_price 
+        SELECT s.*, sc.seat_rows, sc.seat_columns, sc.base_price
         FROM showtimes s
         JOIN screens sc ON s.screen_id = sc.screen_id
         WHERE s.showtime_id = ?
@@ -114,18 +114,23 @@ exports.createBooking = (req, res) => {
                 });
             }
 
-            // Price calculation
+            // Price calculation (hardcoded or base_price, both fine)
             const total_price = st.base_price * seats.length;
+
+            // Decide guest data
+            const guestData = user_id
+                ? null
+                : {
+                    name: guest_name,
+                    email: guest_email,
+                    phone: guest_phone
+                };
 
             // Insert booking
             insertBooking(
                 showtime_id,
                 user_id,
-                {
-                    name: guest_name,
-                    email: guest_email,
-                    phone: guest_phone
-                },
+                guestData,
                 seats,
                 total_price,
                 res
@@ -153,7 +158,7 @@ exports.getMyBookings = (req, res) => {
     });
 };
 
-//ADMIN: View ALL bookings
+// ADMIN: View ALL bookings
 exports.getAllBookings = (req, res) => {
     const sql = `
         SELECT b.*, u.username, s.show_date, s.start_time, m.title AS movie_title
@@ -170,7 +175,7 @@ exports.getAllBookings = (req, res) => {
     });
 };
 
-//USER: Cancel their own booking
+// USER: Cancel their own booking
 exports.cancelBooking = (req, res) => {
     const user_id = req.user.user_id;
     const booking_id = req.params.id;
